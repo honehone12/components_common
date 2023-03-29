@@ -24,4 +24,12 @@ module components_common::components_common {
     public fun transfer_ref(transfer_key: &TransferKey): &TransferRef {
         &transfer_key.transfer_ref
     }
+
+    #[test_only]
+    public fun destroy_for_test(transfer_key: TransferKey) {
+        TransferKey{
+            transfer_ref: _,
+            object_address: _
+        } = transfer_key;
+    }
 }
