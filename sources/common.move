@@ -1,4 +1,4 @@
-module components_common::common {
+module components_common::components_common {
 
     use aptos_framework::object::{Self, ConstructorRef, TransferRef};
 
