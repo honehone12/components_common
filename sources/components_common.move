@@ -1,6 +1,6 @@
 module components_common::components_common {
 
-    use aptos_framework::object::{Self, ConstructorRef, TransferRef};
+    use aptos_framework::object::{Self, ConstructorRef, TransferRef, LinearTransferRef};
 
     #[resource_group(scope = global)]
     struct ComponentGroup {}
@@ -21,8 +21,8 @@ module components_common::components_common {
         transfer_key.object_address
     }
 
-    public fun transfer_ref(transfer_key: &TransferKey): &TransferRef {
-        &transfer_key.transfer_ref
+    public fun generate_linear_transfer_ref(transfer_key: &TransferKey): LinearTransferRef {
+        object::generate_linear_transfer_ref(&transfer_key.transfer_ref)
     }
 
     #[test_only]
