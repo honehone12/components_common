@@ -11,15 +11,11 @@ module components_common::token_objects_store {
     const E_NOT_OWNER: u64 = 4;
     const E_STILL_OWNER: u64 = 5;
 
-    #[resource_group(scope = global)]
-    struct TokenObjectsGroup{}
-
     struct ObjectDisplay has store, drop {
         object_address: address,
         toplevel_type: TypeInfo // for example AptosToken
     }
 
-    #[resource_group_member(group = TokenObjectsGroup)]
     struct TokenObjectsStore has key {
         tokens: vector<ObjectDisplay>
     }
