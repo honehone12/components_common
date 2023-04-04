@@ -4,8 +4,17 @@ module components_common::components_common {
 
     const E_ENABLED_TRNSFER: u64 = 1;
 
+    // for component resource stored in object's address 
     #[resource_group(scope = global)]
     struct ComponentGroup {}
+
+    // for resources stored in owner's address
+    #[resource_group(scope = global)]
+    struct OwnershipGroup {}
+
+    // for config resources stored in publisher's address
+    #[resource_group(scope = blobal)]
+    struct ConfigGroup {}
 
     struct TransferKey has store {
         transfer_ref: TransferRef,

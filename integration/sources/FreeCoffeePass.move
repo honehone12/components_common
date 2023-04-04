@@ -9,7 +9,8 @@ module integration::free_coffee_pass {
     use aptos_token_objects::token;
     use aptos_token_objects::collection::{Self, Collection};
     use aptos_token_objects::royalty;
-    use components_common::components_common::{Self, TransferKey};
+    use components_common::components_common::{Self, TransferKey, ConfigGroup};
+    use components_common::token_objects_store;
     use auctionable_token_objects::auctions;
     use sellable_token_objects::instant_sale;
     use tradable_token_objects::tradings;
@@ -18,6 +19,7 @@ module integration::free_coffee_pass {
 
     const A_DAY_IN_SECONDS: u64 = 86400; 
 
+    #[resource_group_member(group = ConfigGroup)]
     struct Config has key {
         collection_object: Object<Collection>
     }
@@ -44,6 +46,7 @@ module integration::free_coffee_pass {
                 collection_object
             }
         );
+        token_objects_store::register(admin);
     }
 
     public entry fun mint(
@@ -53,9 +56,10 @@ module integration::free_coffee_pass {
         uri: String
     )
     acquires Config {
-        assert!(signer::address_of(admin) == @integration, error::permission_denied(E_NOT_ADMIN));
+        let admin_addr = signer::address_of(admin); 
+        assert!(admin_addr == @integration, error::permission_denied(E_NOT_ADMIN));
 
-        let config = borrow_global<Config>(@integration);
+        let config = borrow_global<Config>(admin_addr);
         let collection_obj = config.collection_object;
         let collection_name = collection::name(collection_obj); 
         let constructor_ref = token::create(
@@ -63,7 +67,7 @@ module integration::free_coffee_pass {
             collection_name,
             description,
             name,
-            option::some(royalty::create(10, 100, @integration)),
+            option::some(royalty::create(10, 100, admin_addr)),
             uri
         );
 
@@ -97,6 +101,7 @@ module integration::free_coffee_pass {
                 transfer_key: option::some(transfer_key)
             }
         );
+        token_objects_store::update(admin_addr, obj);
     }
 
     public entry fun enable_transfer(object: Object<FreeCoffeePass>) 
@@ -109,6 +114,16 @@ module integration::free_coffee_pass {
     acquires FreeCoffeePass {
         let free_coffee = borrow_global_mut<FreeCoffeePass>(object::object_address(&object));
         components_common::disable_transfer(option::borrow_mut(&mut free_coffee.transfer_key));
+    }
+
+    public entry fun managed_transfer(
+        owner: &signer, 
+        object: Object<FreeCoffeePass>, 
+        to: address
+    ) {
+        object::transfer(owner, object, to);
+        token_objects_store::update(signer::address_of(owner), object);
+        token_objects_store::update(to, object);
     }
 
     public entry fun start_auction(
