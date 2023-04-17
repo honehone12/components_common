@@ -1,5 +1,5 @@
 # components_common
-common lib for token object components written in move.  
+common lib for token object component prototypes written in move.  
 
 list of components  
 https://github.com/honehone12/tradable_token_objects  
